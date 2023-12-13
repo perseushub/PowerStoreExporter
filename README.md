@@ -5,6 +5,7 @@
 About the development of the code for the collection engine of Powerstore device metrics.
 
 #### Collect metrics and related paths
+base path: http://{#PowerstoreExportIP}/metrics
 
 ```
 Cluster              /{#PowerStoreIP}/cluster
