@@ -1,0 +1,193 @@
+# my global config
+global:
+  scrape_interval: 10m # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - 127.0.0.1:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  - rules/powerstore/*.yml
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: "prometheus"
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+      - targets: ["localhost:9090"]
+  - job_name: vcenter
+    honor_timestamps: true
+    scrape_interval: 30m
+    scrape_timeout: 30m
+    metrics_path: /metrics/125.0.0.1
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - localhost:9003
+
+  - job_name: powerstore_10.0.0.1__cluster
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/cluster
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__port
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/port
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__file
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/file
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__hardware
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/hardware
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__volume
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/volume
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__appliance
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/appliance
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__nas
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/nas
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__volumegroup
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/volumegroup
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__perf
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/perf
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__cap
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/cap
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__metricvg
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/metricvg
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__metricvolume
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/metricvolume
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__metricfcport
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/metricfcport
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__metricethport
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/metricethport
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+  - job_name: powerstore_10.0.0.1__metricappliance
+    honor_timestamps: true
+    scrape_interval: 5m
+    scrape_timeout: 3m
+    metrics_path: /metrics/10.0.0.1/metricappliance
+    scheme: http
+    follow_redirects: true
+    static_configs:
+      - targets:
+          - 10.0.0.1:9012
+
+
+
+
