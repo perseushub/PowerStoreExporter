@@ -36,16 +36,16 @@ func NewVolumeGroupCollector(api *client.Client, logger log.Logger) *volumeGroup
 func (c *volumeGroupCollector) Collect(ch chan<- prometheus.Metric) {
 	volumeGroupData, err := c.client.GetVolumeGroup()
 	if err != nil {
-		level.Warn(c.logger).Log("msg", "get volumegroup data error", "err", err)
+		level.Warn(c.logger).Log("msg", "get volume group data error", "err", err)
+		return
 	}
-	volumeGroupArray := gjson.Parse(volumeGroupData).Array()
-	for _, volumeGroup := range volumeGroupArray {
+	for _, volumeGroup := range gjson.Parse(volumeGroupData).Array() {
 		name := volumeGroup.Get("name").String()
-		for _, metric := range volumeGroupCollectorMetrics {
-			value := volumeGroup.Get(metric)
-			metricDesc := c.metrics[metric]
-			if value.Exists() && value.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, value.Float(), name)
+		for _, metricName := range volumeGroupCollectorMetrics {
+			metricValue := volumeGroup.Get(metricName)
+			metricDesc := c.metrics[metricName]
+			if metricValue.Exists() && metricValue.Type != gjson.Null {
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
 			}
 		}
 	}
@@ -59,10 +59,10 @@ func (c *volumeGroupCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func getVolumeGroupMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
-	for _, metric := range volumeGroupCollectorMetrics {
-		res[metric] = prometheus.NewDesc(
-			"powerstore_volumegroup_"+metric,
-			getVolumeGroupDescByType(metric),
+	for _, metricName := range volumeGroupCollectorMetrics {
+		res[metricName] = prometheus.NewDesc(
+			"powerstore_volumegroup_"+metricName,
+			getVolumeGroupDescByType(metricName),
 			[]string{"name"},
 			prometheus.Labels{"IP": ip})
 	}

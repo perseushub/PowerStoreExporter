@@ -44,27 +44,25 @@ func NewMetricEthPortCollector(api *client.Client, logger log.Logger) *metricEth
 }
 
 func (c *metricEthPortCollector) Collect(ch chan<- prometheus.Metric) {
-	idData := client.PowerstoreId[c.client.IP]
-	ethPortId := idData["ethport"]
-	idArray := gjson.Parse(ethPortId).Array()
-	for _, portId := range idArray {
+	ethPortArray := client.PowerstoreModuleID[c.client.IP]
+	for _, portId := range gjson.Parse(ethPortArray["ethport"]).Array() {
 		id := portId.Get("id").String()
 		name := portId.Get("name").String()
-		ethPortData, err := c.client.GetMetricEthPort(id)
+		ethPortsData, err := c.client.GetMetricEthPort(id)
 		if err != nil {
-			level.Warn(c.logger).Log("msg", "get metric ethPort data error", "err", err)
-		}
-		ethPortArray := gjson.Parse(ethPortData).Array()
-		arrLen := len(ethPortArray)
-		if arrLen == 0 {
+			level.Warn(c.logger).Log("msg", "get ethPort performance data error", "err", err)
 			continue
 		}
-		ethport := ethPortArray[arrLen-1]
-		for _, metric := range metricEthPortCollectorMetric {
-			v := ethport.Get(metric)
-			metricDesc := c.metrics[metric]
-			if v.Exists() && v.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, v.Float(), name)
+		ethPortDataArray := gjson.Parse(ethPortsData).Array()
+		if len(ethPortDataArray) == 0 {
+			continue
+		}
+		ethPortData := ethPortDataArray[len(ethPortDataArray)-1]
+		for _, metricName := range metricEthPortCollectorMetric {
+			metricValue := ethPortData.Get(metricName)
+			metricDesc := c.metrics[metricName]
+			if metricValue.Exists() && metricValue.Type != gjson.Null {
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
 			}
 		}
 	}
@@ -78,10 +76,10 @@ func (c *metricEthPortCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func getMetricEthPortfMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
-	for _, metric := range metricEthPortCollectorMetric {
-		res[metric] = prometheus.NewDesc(
-			"powerstore_metricEthPort_"+metric,
-			getMetricEthPortDescByType(metric),
+	for _, metricName := range metricEthPortCollectorMetric {
+		res[metricName] = prometheus.NewDesc(
+			"powerstore_metricEthPort_"+metricName,
+			getMetricEthPortDescByType(metricName),
 			[]string{
 				"eth_port_id",
 			},

@@ -31,10 +31,9 @@ func (c *applianceCollector) Collect(ch chan<- prometheus.Metric) {
 	applianceData, err := c.client.GetAppliance()
 	if err != nil {
 		level.Warn(c.logger).Log("msg", "get appliance data error", "err", err)
+		return
 	}
-
-	applianceDataJson := gjson.Parse(applianceData)
-	for _, appliance := range applianceDataJson.Array() {
+	for _, appliance := range gjson.Parse(applianceData).Array() {
 		tag := appliance.Get("service_tag")
 		metricDesc := c.metrics["tag"]
 		if tag.Exists() && tag.Type != gjson.Null {

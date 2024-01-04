@@ -50,19 +50,15 @@ func (c *portCollector) Collect(ch chan<- prometheus.Metric) {
 		portData, err := c.client.GetPort(port)
 		if err != nil {
 			level.Warn(c.logger).Log("msg", "get "+port+" data error", "err", err)
+			return
 		}
-		portDataJson := gjson.Parse(portData)
-		portArray := portDataJson.Array()
-		for _, data := range portArray {
+		for _, data := range gjson.Parse(portData).Array() {
 			name := data.Get("name").String()
 			id := data.Get("appliance_id").String()
-			for _, metric := range portCollectorMetrics {
-				metricValue := data.Get(metric)
-				v := getPortFloatDate(metric, metricValue)
-				metricDesc := c.metrics[port+metric]
-				if metricValue.Exists() && metricValue.Type != gjson.Null {
-					ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, v, id, name)
-				}
+			for _, metricName := range portCollectorMetrics {
+				metricValue := getPortFloatDate(metricName, data.Get(metricName))
+				metricDesc := c.metrics[port+metricName]
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue, id, name)
 			}
 		}
 	}
@@ -97,10 +93,10 @@ func getPortFloatDate(key string, value gjson.Result) float64 {
 func getPortMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
 	for _, port := range portName {
-		for _, metric := range portCollectorMetrics {
-			res[port+metric] = prometheus.NewDesc(
-				"powerstore_port_"+port+"_"+metric,
-				getPortDescByType(metric),
+		for _, metricName := range portCollectorMetrics {
+			res[port+metricName] = prometheus.NewDesc(
+				"powerstore_port_"+port+"_"+metricName,
+				getPortDescByType(metricName),
 				[]string{
 					"appliance_id",
 					port + "_id",

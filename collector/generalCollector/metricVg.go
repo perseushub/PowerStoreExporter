@@ -54,28 +54,25 @@ func NewMetricVgCollector(api *client.Client, logger log.Logger) *metricVgCollec
 }
 
 func (c *metricVgCollector) Collect(ch chan<- prometheus.Metric) {
-	idData := client.PowerstoreId[c.client.IP]
-	volumeGroupId := idData["volumegroup"]
-	idArray := gjson.Parse(volumeGroupId).Array()
-	for _, vgid := range idArray {
-		id := vgid.Get("id").String()
-		name := vgid.Get("name").String()
-		metricVgData, err := c.client.GetVg(id)
+	vgArray := client.PowerstoreModuleID[c.client.IP]
+	for _, vgId := range gjson.Parse(vgArray["volumegroup"]).Array() {
+		id := vgId.Get("id").String()
+		name := vgId.Get("name").String()
+		metricVgData, err := c.client.GetMetricVg(id)
 		if err != nil {
-			level.Warn(c.logger).Log("msg", "get metric Vg data error", "err", err)
-		}
-		metricVgDataJson := gjson.Parse(metricVgData)
-		vgArray := metricVgDataJson.Array()
-		arrLen := len(vgArray)
-		if arrLen == 0 {
+			level.Warn(c.logger).Log("msg", "get volume group performance data error", "err", err)
 			continue
 		}
-		vg := vgArray[arrLen-1]
-		for _, metric := range metricVgCollectorMetric {
-			v := vg.Get(metric)
-			metricDesc := c.metrics[metric]
-			if v.Exists() && v.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, v.Float(), name)
+		vgDataArray := gjson.Parse(metricVgData).Array()
+		if len(vgDataArray) == 0 {
+			continue
+		}
+		vgData := vgDataArray[len(vgDataArray)-1]
+		for _, metricName := range metricVgCollectorMetric {
+			metricValue := vgData.Get(metricName)
+			metricDesc := c.metrics[metricName]
+			if metricValue.Exists() && metricValue.Type != gjson.Null {
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
 			}
 		}
 	}
@@ -89,10 +86,10 @@ func (c *metricVgCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func getMetricVgfMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
-	for _, metric := range metricVgCollectorMetric {
-		res[metric] = prometheus.NewDesc(
-			"powerstore_metricVg_"+metric,
-			getMetricVgDescByType(metric),
+	for _, metricName := range metricVgCollectorMetric {
+		res[metricName] = prometheus.NewDesc(
+			"powerstore_metricVg_"+metricName,
+			getMetricVgDescByType(metricName),
 			[]string{
 				"volume_group_id",
 			},

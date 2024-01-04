@@ -16,6 +16,7 @@ import (
 func Run(config *utils.Config, logger log.Logger) {
 	r := gin.New()
 	r.Use(gin.Recovery())
+	gin.SetMode(gin.ReleaseMode)
 	for _, storage := range config.StorageList {
 		client, err := client.NewClient(storage, logger)
 		if err != nil {
@@ -26,41 +27,41 @@ func Run(config *utils.Config, logger log.Logger) {
 
 		ClusterRegistry := prometheus.NewPedanticRegistry()
 		PortRegistry := prometheus.NewPedanticRegistry()
-		FileRegistry := prometheus.NewPedanticRegistry()
+		FileSystemRegistry := prometheus.NewPedanticRegistry()
 		HardwareRegistry := prometheus.NewPedanticRegistry()
 		VolumeRegistry := prometheus.NewPedanticRegistry()
 		ApplianceRegistry := prometheus.NewPedanticRegistry()
 		NasRegistry := prometheus.NewPedanticRegistry()
 		VolumeGroupRegistry := prometheus.NewPedanticRegistry()
-		CapRegistry := prometheus.NewPedanticRegistry()
+		CapacityRegistry := prometheus.NewPedanticRegistry()
 
 		ClusterRegistry.MustRegister(generalCollector.NewClusterCollector(client, logger))
-		ClusterRegistry.MustRegister(generalCollector.NewPerfCollector(client, logger))
 		PortRegistry.MustRegister(generalCollector.NewPortCollector(client, logger))
 		PortRegistry.MustRegister(generalCollector.NewMetricFcPortCollector(client, logger))
 		PortRegistry.MustRegister(generalCollector.NewMetricEthPortCollector(client, logger))
-		FileRegistry.MustRegister(generalCollector.NewFileCollector(client, logger))
+		FileSystemRegistry.MustRegister(generalCollector.NewFileCollector(client, logger))
 		HardwareRegistry.MustRegister(generalCollector.NewHardwareCollector(client, logger))
 		HardwareRegistry.MustRegister(generalCollector.NewWearMetricCollector(client, logger))
 		VolumeRegistry.MustRegister(generalCollector.NewVolumeCollector(client, logger))
 		VolumeRegistry.MustRegister(generalCollector.NewMetricVolumeCollector(client, logger))
 		ApplianceRegistry.MustRegister(generalCollector.NewApplianceCollector(client, logger))
+		ApplianceRegistry.MustRegister(generalCollector.NewMetricApplianceCollector(client, logger))
 		NasRegistry.MustRegister(generalCollector.NewNasCollector(client, logger))
 		VolumeGroupRegistry.MustRegister(generalCollector.NewVolumeGroupCollector(client, logger))
 		VolumeGroupRegistry.MustRegister(generalCollector.NewMetricVgCollector(client, logger))
-		CapRegistry.MustRegister(generalCollector.NewCapCollector(client, logger))
+		CapacityRegistry.MustRegister(generalCollector.NewCapacityCollector(client, logger))
 
 		metricsGroup := r.Group(fmt.Sprintf("/metrics/%s", storage.Ip))
 		{
-			metricsGroup.GET("/cluster", utils.PrometheusHandler(ClusterRegistry, logger))
-			metricsGroup.GET("/port", utils.PrometheusHandler(PortRegistry, logger))
-			metricsGroup.GET("/file", utils.PrometheusHandler(FileRegistry, logger))
-			metricsGroup.GET("/hardware", utils.PrometheusHandler(HardwareRegistry, logger))
-			metricsGroup.GET("/volume", utils.PrometheusHandler(VolumeRegistry, logger))
-			metricsGroup.GET("/appliance", utils.PrometheusHandler(ApplianceRegistry, logger))
-			metricsGroup.GET("/nas", utils.PrometheusHandler(NasRegistry, logger))
-			metricsGroup.GET("/volumeGroup", utils.PrometheusHandler(VolumeGroupRegistry, logger))
-			metricsGroup.GET("/capacity", utils.PrometheusHandler(CapRegistry, logger))
+			metricsGroup.GET("cluster", utils.PrometheusHandler(ClusterRegistry, logger))
+			metricsGroup.GET("port", utils.PrometheusHandler(PortRegistry, logger))
+			metricsGroup.GET("file", utils.PrometheusHandler(FileSystemRegistry, logger))
+			metricsGroup.GET("hardware", utils.PrometheusHandler(HardwareRegistry, logger))
+			metricsGroup.GET("volume", utils.PrometheusHandler(VolumeRegistry, logger))
+			metricsGroup.GET("appliance", utils.PrometheusHandler(ApplianceRegistry, logger))
+			metricsGroup.GET("nas", utils.PrometheusHandler(NasRegistry, logger))
+			metricsGroup.GET("volumeGroup", utils.PrometheusHandler(VolumeGroupRegistry, logger))
+			metricsGroup.GET("capacity", utils.PrometheusHandler(CapacityRegistry, logger))
 
 		}
 	}

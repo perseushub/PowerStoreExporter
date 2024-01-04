@@ -35,9 +35,9 @@ func (c *nasCollector) Collect(ch chan<- prometheus.Metric) {
 	nasData, err := c.client.GetNas()
 	if err != nil {
 		level.Warn(c.logger).Log("msg", "get Nas data error", "err", err)
+		return
 	}
-	nasArray := gjson.Parse(nasData).Array()
-	for _, nas := range nasArray {
+	for _, nas := range gjson.Parse(nasData).Array() {
 		name := nas.Get("name").String()
 		state := nas.Get("operational_status")
 		value := getNasFloatData("operational_status", state)

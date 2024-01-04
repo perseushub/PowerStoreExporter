@@ -43,17 +43,16 @@ func (c *hardwareCollector) Collect(ch chan<- prometheus.Metric) {
 	nodeData, err := c.client.GetHardware("Node")
 	if err != nil {
 		level.Warn(c.logger).Log("msg", "get hardware data error", "err", err)
+		return
 	}
-	nodeDataJson := gjson.Parse(nodeData)
-	nodeArray := nodeDataJson.Array()
-	for _, node := range nodeArray {
+	for _, node := range gjson.Parse(nodeData).Array() {
 		id := node.Get("appliance_id").String()
-		nodename := node.Get("name").String()
+		nodeName := node.Get("name").String()
 		sn := node.Get("serial_number").String()
 		state := node.Get("lifecycle_state").String()
 		metricDesc := c.metrics["node"+id]
 		if node.Exists() && node.Type != gjson.Null {
-			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, 0, nodename, sn, state)
+			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, 0, nodeName, sn, state)
 		}
 	}
 
@@ -62,9 +61,7 @@ func (c *hardwareCollector) Collect(ch chan<- prometheus.Metric) {
 		if err != nil {
 			level.Warn(c.logger).Log("msg", "get hardware data error", "err", err)
 		}
-		hardwareDataJson := gjson.Parse(hardwareData)
-		hardwareArray := hardwareDataJson.Array()
-		for _, hardware := range hardwareArray {
+		for _, hardware := range gjson.Parse(hardwareData).Array() {
 			name := hardware.Get("name").String()
 			state := hardware.Get("lifecycle_state")
 			stateValue := getHardwareFloatDate("lifecycle_state", state)
@@ -121,9 +118,7 @@ func getHardwareMetrics(ip string) map[string]*prometheus.Desc {
 			prometheus.Labels{"IP": ip})
 	}
 
-	idJson := client.PowerstoreId[ip]["appliance"]
-	idArr := gjson.Parse(idJson).Array()
-	for _, id := range idArr {
+	for _, id := range gjson.Parse(client.PowerstoreModuleID[ip]["appliance"]).Array() {
 		value := id.Get("id").String()
 		res["node"+value] = prometheus.NewDesc(
 			"powerstore_hardware_node_state",

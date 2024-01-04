@@ -17,7 +17,7 @@ type Client struct {
 	IP       string
 	username string
 	password string
-	Version  string
+	version  string
 	baseUrl  string
 	http     *http.Client
 	token    string
@@ -50,7 +50,7 @@ func NewClient(config utils.Storage, logger log.Logger) (*Client, error) {
 		IP:       config.Ip,
 		username: config.User,
 		password: config.Password,
-		Version:  config.Version,
+		version:  config.Version,
 		baseUrl:  baseUrl,
 		http:     httpClient,
 		logger:   logger,
@@ -109,9 +109,6 @@ func (c *Client) getResource(method, uri, body string) (string, error) {
 		body, err := ioutil.ReadAll(response.Body)
 		if err != nil {
 			return "", errors.New("get resource error: " + string(body))
-		} else if method == "GET" {
-			cok := response.Cookies()
-			c.token = cok[0].Value
 		}
 		return string(body), nil
 	case http.StatusUnauthorized, http.StatusFound:

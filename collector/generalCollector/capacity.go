@@ -54,57 +54,56 @@ var metricCapDescMap = map[string]string{
 	"max_shared_logical_used":  "max shared logical used,unit is B",
 }
 
-type capCollector struct {
+type capacityCollector struct {
 	client  *client.Client
 	metrics map[string]*prometheus.Desc
 	logger  log.Logger
 }
 
-func NewCapCollector(api *client.Client, logger log.Logger) *capCollector {
-	metrics := getCapMetrics(api.IP)
-	return &capCollector{
+func NewCapacityCollector(api *client.Client, logger log.Logger) *capacityCollector {
+	metrics := getCapacityMetrics(api.IP)
+	return &capacityCollector{
 		client:  api,
 		metrics: metrics,
 		logger:  logger,
 	}
 }
 
-func (c *capCollector) Collect(ch chan<- prometheus.Metric) {
-	idData := client.PowerstoreId[c.client.IP]
-	applianceId := idData["appliance"]
-	idArray := gjson.Parse(applianceId).Array()
-	for _, id := range idArray {
-		capData, err := c.client.GetCap(id.String())
+func (c *capacityCollector) Collect(ch chan<- prometheus.Metric) {
+	applianceArray := client.PowerstoreModuleID[c.client.IP]
+	for _, applianceID := range gjson.Parse(applianceArray["appliance"]).Array() {
+		id := applianceID.Get("id").String()
+		capacityData, err := c.client.GetCap(id)
 		if err != nil {
-			level.Warn(c.logger).Log("msg", "get cap data error", "err", err)
+			level.Warn(c.logger).Log("msg", "get capacity data error", "err", err)
+			return
 		}
-		capDataJson := gjson.Parse(capData)
-		capDataArray := capDataJson.Array()
-		capa := capDataArray[len(capDataArray)-1]
-		name := capa.Get("appliance_id").String()
-		for _, metric := range capCollectorMetric {
-			v := capa.Get(metric)
-			metricDesc := c.metrics[metric]
-			if v.Exists() && v.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, v.Float(), name)
+		capacityDataArray := gjson.Parse(capacityData).Array()
+		capacity := capacityDataArray[len(capacityDataArray)-1]
+		name := capacity.Get("appliance_id").String()
+		for _, metricName := range capCollectorMetric {
+			metricValue := capacity.Get(metricName)
+			metricDesc := c.metrics[metricName]
+			if metricValue.Exists() && metricValue.Type != gjson.Null {
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
 			}
 		}
 	}
 
 }
 
-func (c *capCollector) Describe(ch chan<- *prometheus.Desc) {
+func (c *capacityCollector) Describe(ch chan<- *prometheus.Desc) {
 	for _, descMap := range c.metrics {
 		ch <- descMap
 	}
 }
 
-func getCapMetrics(ip string) map[string]*prometheus.Desc {
+func getCapacityMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
-	for _, metric := range capCollectorMetric {
-		res[metric] = prometheus.NewDesc(
-			"powerstore_cap_"+metric,
-			getCapDescByType(metric),
+	for _, metricName := range capCollectorMetric {
+		res[metricName] = prometheus.NewDesc(
+			"powerstore_cap_"+metricName,
+			getCapacityDescByType(metricName),
 			[]string{
 				"appliance_id",
 			},
@@ -113,7 +112,7 @@ func getCapMetrics(ip string) map[string]*prometheus.Desc {
 	return res
 }
 
-func getCapDescByType(key string) string {
+func getCapacityDescByType(key string) string {
 	if v, ok := metricCapDescMap[key]; ok {
 		return v
 	} else {

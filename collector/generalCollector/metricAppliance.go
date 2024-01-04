@@ -8,7 +8,7 @@ import (
 	"powerstore/collector/client"
 )
 
-var perfCollectorMetric = []string{
+var metricAppliancePerfCollectorMetric = []string{
 	"avg_read_latency",
 	"avg_read_size",
 	"avg_latency",
@@ -25,7 +25,7 @@ var perfCollectorMetric = []string{
 }
 
 // performance description
-var metricPerfDescMap = map[string]string{
+var metricAppliancePerfDescMap = map[string]string{
 	"avg_read_latency":            "avg latency of read , unit is ms",
 	"avg_read_size":               "avg number of read , unit is bytes",
 	"avg_latency":                 "avg latency , unit is ms",
@@ -41,57 +41,56 @@ var metricPerfDescMap = map[string]string{
 	"io_workload_cpu_utilization": "usage of CPU for IO workload ",
 }
 
-type performanceCollector struct {
+type metricApplianceCollector struct {
 	client  *client.Client
 	metrics map[string]*prometheus.Desc
 	logger  log.Logger
 }
 
-func NewPerfCollector(api *client.Client, logger log.Logger) *performanceCollector {
-	metrics := getPerfMetrics(api.IP)
-	return &performanceCollector{
+func NewMetricApplianceCollector(api *client.Client, logger log.Logger) *metricApplianceCollector {
+	metrics := getMetricApplianceMetrics(api.IP)
+	return &metricApplianceCollector{
 		client:  api,
 		metrics: metrics,
 		logger:  logger,
 	}
 }
 
-func (c *performanceCollector) Collect(ch chan<- prometheus.Metric) {
-	idData := client.PowerstoreId[c.client.IP]
-	applianceId := idData["appliance"]
-	idArray := gjson.Parse(applianceId).Array()
-	for _, id := range idArray {
-		perfData, err := c.client.GetPerf(id.String())
+func (c *metricApplianceCollector) Collect(ch chan<- prometheus.Metric) {
+	applianceArray := client.PowerstoreModuleID[c.client.IP]
+	for _, applianceID := range gjson.Parse(applianceArray["appliance"]).Array() {
+		id := applianceID.Get("id").String()
+		perfData, err := c.client.GetPerf(id)
 		if err != nil {
-			level.Warn(c.logger).Log("msg", "get perf data error", "err", err)
+			level.Warn(c.logger).Log("msg", "get appliance performance data error", "err", err)
+			continue
 		}
-		perfDataJson := gjson.Parse(perfData)
-		perfArray := perfDataJson.Array()
-		perf := perfArray[len(perfArray)-1]
-		name := perf.Get("appliance_id").String()
-		for _, metric := range perfCollectorMetric {
-			v := perf.Get(metric)
-			metricDesc := c.metrics[metric]
-			if v.Exists() && v.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, v.Float(), name)
+		appliancePerformanceArray := gjson.Parse(perfData).Array()
+		appliancePerformance := appliancePerformanceArray[len(appliancePerformanceArray)-1]
+		name := appliancePerformance.Get("appliance_id").String()
+		for _, metricName := range metricAppliancePerfCollectorMetric {
+			metricValue := appliancePerformance.Get(metricName)
+			metricDesc := c.metrics[metricName]
+			if metricValue.Exists() && metricValue.Type != gjson.Null {
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
 			}
 		}
 	}
 
 }
 
-func (c *performanceCollector) Describe(ch chan<- *prometheus.Desc) {
+func (c *metricApplianceCollector) Describe(ch chan<- *prometheus.Desc) {
 	for _, descMap := range c.metrics {
 		ch <- descMap
 	}
 }
 
-func getPerfMetrics(ip string) map[string]*prometheus.Desc {
+func getMetricApplianceMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
-	for _, metric := range perfCollectorMetric {
-		res[metric] = prometheus.NewDesc(
-			"powerstore_perf_"+metric,
-			getPerfDescByType(metric),
+	for _, metricName := range metricAppliancePerfCollectorMetric {
+		res[metricName] = prometheus.NewDesc(
+			"powerstore_perf_"+metricName,
+			getMetricApplianceDescByType(metricName),
 			[]string{
 				"appliance_id",
 			},
@@ -100,8 +99,8 @@ func getPerfMetrics(ip string) map[string]*prometheus.Desc {
 	return res
 }
 
-func getPerfDescByType(key string) string {
-	if v, ok := metricPerfDescMap[key]; ok {
+func getMetricApplianceDescByType(key string) string {
+	if v, ok := metricAppliancePerfDescMap[key]; ok {
 		return v
 	} else {
 		return key

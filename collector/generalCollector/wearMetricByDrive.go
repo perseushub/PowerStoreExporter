@@ -24,27 +24,24 @@ func NewWearMetricCollector(api *client.Client, logger log.Logger) *metricWearMe
 }
 
 func (c *metricWearMetricCollector) Collect(ch chan<- prometheus.Metric) {
-	idData := client.PowerstoreId[c.client.IP]
-	driveId := idData["drive"]
-	idArray := gjson.Parse(driveId).Array()
-	for _, drId := range idArray {
-		id := drId.Get("id").String()
-		name := drId.Get("name").String()
+	driveArray := client.PowerstoreModuleID[c.client.IP]
+	for _, driveID := range gjson.Parse(driveArray["drive"]).Array() {
+		id := driveID.Get("id").String()
+		name := driveID.Get("name").String()
 		wearMetricData, err := c.client.GetWearMetricByDrive(id)
 		if err != nil {
-			level.Warn(c.logger).Log("msg", "get metric Wear data error", "err", err)
+			level.Warn(c.logger).Log("msg", "get disk performance data error", "err", err)
 			continue
 		}
 		metricWearArray := gjson.Parse(wearMetricData).Array()
-		arrLen := len(metricWearArray)
-		if arrLen == 0 {
+		if len(metricWearArray) == 0 {
 			continue
 		}
-		wearData := metricWearArray[arrLen-1]
-		v := wearData.Get("percent_endurance_remaining")
+		wearData := metricWearArray[len(metricWearArray)-1]
+		metricsValue := wearData.Get("percent_endurance_remaining")
 		metricDesc := c.metrics["wear"]
-		if v.Exists() && v.Type != gjson.Null {
-			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, v.Float(), name)
+		if metricsValue.Exists() && metricsValue.Type != gjson.Null {
+			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricsValue.Float(), name)
 		}
 	}
 

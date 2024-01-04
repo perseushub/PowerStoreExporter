@@ -20,7 +20,7 @@ var metricVolumeDescMap = map[string]string{
 	"logical_used": "the unit is B",
 }
 
-var statuVolumeMetricsMap = map[string]map[string]int{
+var statusVolumeMetricsMap = map[string]map[string]int{
 	"state": {"Ready": 1, "other": 0},
 }
 
@@ -40,21 +40,17 @@ func NewVolumeCollector(api *client.Client, logger log.Logger) *volumeCollector 
 }
 
 func (c *volumeCollector) Collect(ch chan<- prometheus.Metric) {
-	volumeData, err := c.client.GetVolume(c.client.Version)
+	volumeData, err := c.client.GetVolume()
 	if err != nil {
 		level.Warn(c.logger).Log("msg", "get volume data error", "err", err)
+		return
 	}
-	volumeDataJson := gjson.Parse(volumeData)
-	volumeArray := volumeDataJson.Array()
-	for _, volume := range volumeArray {
+	for _, volume := range gjson.Parse(volumeData).Array() {
 		name := volume.Get("name").String()
-		for _, metric := range volumeCollectorMetrics {
-			rs := volume.Get(metric)
-			value := getVolumeFloatDate(metric, rs)
-			metricDesc := c.metrics[metric]
-			if rs.Exists() && rs.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, value, name)
-			}
+		for _, metricName := range volumeCollectorMetrics {
+			metricValue := getVolumeFloatDate(metricName, volume.Get(metricName))
+			metricDesc := c.metrics[metricName]
+			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue, name)
 		}
 	}
 }
@@ -66,7 +62,7 @@ func (c *volumeCollector) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func getVolumeFloatDate(key string, value gjson.Result) float64 {
-	if v, ok := statuVolumeMetricsMap[key]; ok {
+	if v, ok := statusVolumeMetricsMap[key]; ok {
 		if res, ok2 := v[value.String()]; ok2 {
 			return float64(res)
 		} else {
@@ -79,10 +75,10 @@ func getVolumeFloatDate(key string, value gjson.Result) float64 {
 
 func getVolumeMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
-	for _, metric := range volumeCollectorMetrics {
-		res[metric] = prometheus.NewDesc(
-			"powerstore_volume_"+metric,
-			getVolumeDescByType(metric),
+	for _, metricName := range volumeCollectorMetrics {
+		res[metricName] = prometheus.NewDesc(
+			"powerstore_volume_"+metricName,
+			getVolumeDescByType(metricName),
 			[]string{"name"},
 			prometheus.Labels{"IP": ip})
 	}

@@ -5,7 +5,6 @@ go 1.18
 require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/go-kit/log v0.2.1
-	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/prometheus/client_golang v1.14.0
 	github.com/tidwall/gjson v1.14.4
 	gopkg.in/yaml.v3 v3.0.1

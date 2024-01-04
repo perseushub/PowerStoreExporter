@@ -39,7 +39,7 @@ type metricVolumeCollector struct {
 }
 
 func NewMetricVolumeCollector(api *client.Client, logger log.Logger) *metricVolumeCollector {
-	metrics := getMetricVolumefMetrics(api.IP)
+	metrics := getMetricVolumeMetrics(api.IP)
 	return &metricVolumeCollector{
 		client:  api,
 		metrics: metrics,
@@ -48,27 +48,25 @@ func NewMetricVolumeCollector(api *client.Client, logger log.Logger) *metricVolu
 }
 
 func (c *metricVolumeCollector) Collect(ch chan<- prometheus.Metric) {
-	idData := client.PowerstoreId[c.client.IP]
-	volumeId := idData["volume"]
-	idArray := gjson.Parse(volumeId).Array()
-	for _, volId := range idArray {
+	volumeArray := client.PowerstoreModuleID[c.client.IP]
+	for _, volId := range gjson.Parse(volumeArray["volume"]).Array() {
 		id := volId.Get("id").String()
 		name := volId.Get("name").String()
 		metricVolData, err := c.client.GetMetricVolume(id)
 		if err != nil {
-			level.Warn(c.logger).Log("msg", "get metric Vg data error", "err", err)
-		}
-		metricVolArray := gjson.Parse(metricVolData).Array()
-		arrLen := len(metricVolArray)
-		if arrLen == 0 {
+			level.Warn(c.logger).Log("msg", "get volume performance data error", "err", err)
 			continue
 		}
-		volData := metricVolArray[arrLen-1]
-		for _, metric := range metricVolumeCollectorMetric {
-			v := volData.Get(metric)
-			metricDesc := c.metrics[metric]
-			if v.Exists() && v.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, v.Float(), name)
+		volumeDataArray := gjson.Parse(metricVolData).Array()
+		if len(volumeDataArray) == 0 {
+			continue
+		}
+		volData := volumeDataArray[len(volumeDataArray)-1]
+		for _, metricName := range metricVolumeCollectorMetric {
+			metricValue := volData.Get(metricName)
+			metricDesc := c.metrics[metricName]
+			if metricValue.Exists() && metricValue.Type != gjson.Null {
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
 			}
 		}
 	}
@@ -80,12 +78,12 @@ func (c *metricVolumeCollector) Describe(ch chan<- *prometheus.Desc) {
 	}
 }
 
-func getMetricVolumefMetrics(ip string) map[string]*prometheus.Desc {
+func getMetricVolumeMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
-	for _, metric := range metricVgCollectorMetric {
-		res[metric] = prometheus.NewDesc(
-			"powerstore_metricVolume_"+metric,
-			getMetricVolumeDescByType(metric),
+	for _, metricName := range metricVgCollectorMetric {
+		res[metricName] = prometheus.NewDesc(
+			"powerstore_metricVolume_"+metricName,
+			getMetricVolumeDescByType(metricName),
 			[]string{
 				"volume_id",
 			},

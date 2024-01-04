@@ -57,7 +57,7 @@ type metricFcPortCollector struct {
 }
 
 func NewMetricFcPortCollector(api *client.Client, logger log.Logger) *metricFcPortCollector {
-	metrics := getMetricFcPortfMetrics(api.IP)
+	metrics := getMetricFcPortMetrics(api.IP)
 	return &metricFcPortCollector{
 		client:  api,
 		metrics: metrics,
@@ -66,27 +66,25 @@ func NewMetricFcPortCollector(api *client.Client, logger log.Logger) *metricFcPo
 }
 
 func (c *metricFcPortCollector) Collect(ch chan<- prometheus.Metric) {
-	idData := client.PowerstoreId[c.client.IP]
-	fcPortId := idData["fcport"]
-	idArray := gjson.Parse(fcPortId).Array()
-	for _, portId := range idArray {
+	fcPortArray := client.PowerstoreModuleID[c.client.IP]
+	for _, portId := range gjson.Parse(fcPortArray["fcport"]).Array() {
 		id := portId.Get("id").String()
 		name := portId.Get("name").String()
-		fcPortData, err := c.client.GetMetricFcPort(id)
+		fcPortsData, err := c.client.GetMetricFcPort(id)
 		if err != nil {
-			level.Warn(c.logger).Log("msg", "get metric fcPort data error", "err", err)
-		}
-		fcPortArray := gjson.Parse(fcPortData).Array()
-		arrLen := len(fcPortArray)
-		if arrLen == 0 {
+			level.Warn(c.logger).Log("msg", "get fcPort performance data error", "err", err)
 			continue
 		}
-		fcport := fcPortArray[arrLen-1]
-		for _, metric := range metricFcPortCollectorMetric {
-			v := fcport.Get(metric)
-			metricDesc := c.metrics[metric]
-			if v.Exists() && v.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, v.Float(), name)
+		fcPortDataArray := gjson.Parse(fcPortsData).Array()
+		if len(fcPortDataArray) == 0 {
+			continue
+		}
+		fcPortData := fcPortDataArray[len(fcPortDataArray)-1]
+		for _, metricName := range metricFcPortCollectorMetric {
+			metricValue := fcPortData.Get(metricName)
+			metricDesc := c.metrics[metricName]
+			if metricValue.Exists() && metricValue.Type != gjson.Null {
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
 			}
 		}
 	}
@@ -98,13 +96,13 @@ func (c *metricFcPortCollector) Describe(ch chan<- *prometheus.Desc) {
 	}
 }
 
-func getMetricFcPortfMetrics(ip string) map[string]*prometheus.Desc {
+func getMetricFcPortMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
 
-	for _, metric := range metricFcPortCollectorMetric {
-		res[metric] = prometheus.NewDesc(
-			"powerstore_metricFcPort_"+metric,
-			getMetricFcPortDescByType(metric),
+	for _, metricName := range metricFcPortCollectorMetric {
+		res[metricName] = prometheus.NewDesc(
+			"powerstore_metricFcPort_"+metricName,
+			getMetricFcPortDescByType(metricName),
 			[]string{
 				"fc_port_id",
 			},

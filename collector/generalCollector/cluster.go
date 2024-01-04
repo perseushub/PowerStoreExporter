@@ -35,10 +35,9 @@ func (c *clusterCollector) Collect(ch chan<- prometheus.Metric) {
 	clusterData, err := c.client.GetCluster()
 	if err != nil {
 		level.Warn(c.logger).Log("msg", "get cluster data error", "err", err)
+		return
 	}
-	clusterDataJson := gjson.Parse(clusterData)
-	clusterArray := clusterDataJson.Array()
-	for _, cluster := range clusterArray {
+	for _, cluster := range gjson.Parse(clusterData).Array() {
 		stateValue := getFloatData("cluster_state", cluster.Get("state"))
 		id := cluster.Get("master_appliance_id").String()
 		clusterName := cluster.Get("name").String()
