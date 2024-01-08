@@ -39,10 +39,16 @@ Sample: http://127.0.0.1:9010/metrics/10.0.0.1/Cluster
 
 You can chose one of Prometheus or Zabbix monitoring software to scrape this exporter targets, then use Grafana to render the metrics.
 For Prometheus user: PowerStores --> PowerStore Expoter --> multiple targets --> Prometheus scrape jobs --> Promtheus --> Grafana
+
 For Zabbix user: PowerStores --> PowerStore Expoter --> multiple targets --> [ Create PowerStore host in Zabbix --> Link this host with PowerStore Zabbix template --> Scrape targets by Zabbix http client --> Zabbix DB --> Zabbix API] --> Grafana
 
 #### Prometheus and Grafana
-
-
+Add ./templates/prometheus/prometheus.yml  all jobs to your Prometheus yml config file, then restart your Prometheus, your can update scrape interval time support application monitoring requirement.
+We use Grafana Dashboard to render Prometheus metrics data.
 
 #### Zabbix and Grafana
+When you create host in Zabbix system, use ./templates/zabbix/zbx_exporter_tempaltes.yaml to link PowerStore Zabbix host.
+You can use Zabbix latest date to get those detail metrics data. 
+We use Zabbix as Grafana datasource then render PowerStore metrics data in Grafna Dashboard.
+You alse can create Zabbix dashboard then add widget get PowerStore itm as you need.
+
