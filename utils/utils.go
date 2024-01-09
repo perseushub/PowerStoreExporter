@@ -12,8 +12,7 @@ import (
 )
 
 const (
-	configFile = "config.yml"
-	MaxReq     = 50
+	MaxReq = 50
 )
 
 var (
@@ -22,13 +21,6 @@ var (
 
 func init() {
 	ReqCounter = make(chan int, MaxReq)
-}
-
-type General struct {
-	Enable bool   `yaml:"enable"`
-	init   bool   `yaml:"init"`
-	Path   string `yaml:"path"`
-	Cron   string `yaml:"cron"`
 }
 
 type Storage struct {
@@ -43,8 +35,8 @@ type Exporter struct {
 }
 
 type Logs struct {
-	Type string `yaml:"type"`
-	Path string `yaml:"path"`
+	Type  string `yaml:"type"`
+	Path  string `yaml:"path"`
 	Level string `yaml:"level"`
 }
 
@@ -52,11 +44,10 @@ type Config struct {
 	Exporter    Exporter  `yaml:"exporter"`
 	StorageList []Storage `yaml:"storageList"`
 	Log         Logs      `yaml:"log"`
-	EventLog    General   `yaml:"eventLog"`
 }
 
-func GetConfig() *Config {
-	yamlFile, err := ioutil.ReadFile(configFile)
+func GetConfig(configPath string) *Config {
+	yamlFile, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		stdlog.Fatalf("Error reading configuration file: %s\n", err)
 	}
