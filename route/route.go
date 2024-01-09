@@ -23,7 +23,7 @@ func Run(config *utils.Config, logger log.Logger) {
 			level.Error(logger).Log("msg", "init Powerstore client error", "err", err, "ip", storage.Ip)
 		}
 
-		client.Init(logger)
+		client.InitModuleID(logger)
 
 		ClusterRegistry := prometheus.NewPedanticRegistry()
 		PortRegistry := prometheus.NewPedanticRegistry()
@@ -62,7 +62,6 @@ func Run(config *utils.Config, logger log.Logger) {
 			metricsGroup.GET("nas", utils.PrometheusHandler(NasRegistry, logger))
 			metricsGroup.GET("volumeGroup", utils.PrometheusHandler(VolumeGroupRegistry, logger))
 			metricsGroup.GET("capacity", utils.PrometheusHandler(CapacityRegistry, logger))
-
 		}
 	}
 
@@ -73,6 +72,9 @@ func Run(config *utils.Config, logger log.Logger) {
 	})
 
 	httpPort := fmt.Sprintf(":%s", strconv.Itoa(config.Exporter.Port))
-	level.Info(logger).Log("msg", "~~~~~~~~~~~~~Start Powerstore Exporter~~~~~~~~~~~~~~")
-	r.Run(httpPort)
+	level.Info(logger).Log("msg", "~~~~~~~~~~~~~Start PowerStore Exporter~~~~~~~~~~~~~~")
+	err := r.Run(httpPort)
+	if err != nil {
+		level.Error(logger).Log("msg", "Service startup failed", "err", err)
+	}
 }
