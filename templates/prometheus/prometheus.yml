@@ -26,7 +26,7 @@ scrape_configs:
     follow_redirects: true
     static_configs:
       - targets:
-          - 10.0.0.1:9010
+          - 127.0.0.1:9010
   - job_name: powerstore_10.0.0.1_port
     honor_timestamps: true
     scrape_interval: 5m
@@ -36,27 +36,27 @@ scrape_configs:
     follow_redirects: true
     static_configs:
       - targets:
-          - 10.0.0.1:9010
+          - 127.0.0.1:9010
   - job_name: powerstore_10.0.0.1_file
     honor_timestamps: true
-    scrape_interval: 5m
+    scrape_interval: 15m
     scrape_timeout: 3m
     metrics_path: /metrics/10.0.0.1/file
     scheme: http
     follow_redirects: true
     static_configs:
       - targets:
-          - 10.0.0.1:9010
+          - 127.0.0.1:9010
   - job_name: powerstore_10.0.0.1_hardware
     honor_timestamps: true
-    scrape_interval: 5m
+    scrape_interval: 10m
     scrape_timeout: 3m
     metrics_path: /metrics/10.0.0.1/hardware
     scheme: http
     follow_redirects: true
     static_configs:
       - targets:
-          - 10.0.0.1:9010
+          - 127.0.0.1:9010
   - job_name: powerstore_10.0.0.1_volume
     honor_timestamps: true
     scrape_interval: 5m
@@ -66,7 +66,7 @@ scrape_configs:
     follow_redirects: true
     static_configs:
       - targets:
-          - 10.0.0.1:9010
+          - 127.0.0.1:9010
   - job_name: powerstore_10.0.0.1_appliance
     honor_timestamps: true
     scrape_interval: 5m
@@ -76,87 +76,37 @@ scrape_configs:
     follow_redirects: true
     static_configs:
       - targets:
-          - 10.0.0.1:9010
+          - 127.0.0.1:9010
   - job_name: powerstore_10.0.0.1_nas
     honor_timestamps: true
-    scrape_interval: 5m
+    scrape_interval: 15m
     scrape_timeout: 3m
     metrics_path: /metrics/10.0.0.1/nas
     scheme: http
     follow_redirects: true
     static_configs:
       - targets:
-          - 10.0.0.1:9010
-  - job_name: powerstore_10.0.0.1_volumegroup
+          - 127.0.0.1:9010
+  - job_name: powerstore_10.0.0.1_volumeGroup
     honor_timestamps: true
     scrape_interval: 5m
     scrape_timeout: 3m
-    metrics_path: /metrics/10.0.0.1/volumegroup
+    metrics_path: /metrics/10.0.0.1/volumeGroup
     scheme: http
     follow_redirects: true
     static_configs:
       - targets:
-          - 10.0.0.1:9010
-  - job_name: powerstore_10.0.0.1_cap
+          - 127.0.0.1:9010
+  - job_name: powerstore_10.0.0.1_capacity
     honor_timestamps: true
-    scrape_interval: 5m
+    scrape_interval: 15m
     scrape_timeout: 3m
-    metrics_path: /metrics/10.0.0.1/cap
+    metrics_path: /metrics/10.0.0.1/capacity
     scheme: http
     follow_redirects: true
     static_configs:
       - targets:
-          - 10.0.0.1:9010
-  - job_name: powerstore_10.0.0.1_metricvg
-    honor_timestamps: true
-    scrape_interval: 5m
-    scrape_timeout: 3m
-    metrics_path: /metrics/10.0.0.1/metricvg
-    scheme: http
-    follow_redirects: true
-    static_configs:
-      - targets:
-          - 10.0.0.1:9010
-  - job_name: powerstore_10.0.0.1_metricvolume
-    honor_timestamps: true
-    scrape_interval: 5m
-    scrape_timeout: 3m
-    metrics_path: /metrics/10.0.0.1/metricvolume
-    scheme: http
-    follow_redirects: true
-    static_configs:
-      - targets:
-          - 10.0.0.1:9010
-  - job_name: powerstore_10.0.0.1_metricfcport
-    honor_timestamps: true
-    scrape_interval: 5m
-    scrape_timeout: 3m
-    metrics_path: /metrics/10.0.0.1/metricfcport
-    scheme: http
-    follow_redirects: true
-    static_configs:
-      - targets:
-          - 10.0.0.1:9010
-  - job_name: powerstore_10.0.0.1_metricethport
-    honor_timestamps: true
-    scrape_interval: 5m
-    scrape_timeout: 3m
-    metrics_path: /metrics/10.0.0.1/metricethport
-    scheme: http
-    follow_redirects: true
-    static_configs:
-      - targets:
-          - 10.0.0.1:9010
-  - job_name: powerstore_10.0.0.1_metricappliance
-    honor_timestamps: true
-    scrape_interval: 5m
-    scrape_timeout: 3m
-    metrics_path: /metrics/10.0.0.1/metricappliance
-    scheme: http
-    follow_redirects: true
-    static_configs:
-      - targets:
-          - 10.0.0.1:9010
+          - 127.0.0.1:9010
 
 
 
