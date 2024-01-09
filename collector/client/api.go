@@ -26,12 +26,12 @@ func (c *Client) GetCluster() (string, error) {
 	return c.getData("cluster?select=*", "GET", "")
 }
 
-func (c *Client) GetPort(name string) (string, error) {
-	return c.getData(name+"?select=*", "GET", "")
+func (c *Client) GetPort(portType string) (string, error) {
+	return c.getData(portType+"?select=*", "GET", "")
 }
 
-func (c *Client) GetHardware(id string) (string, error) {
-	return c.getData("hardware?select=*&type=eq."+id, "GET", "")
+func (c *Client) GetHardware(hardwareType string) (string, error) {
+	return c.getData("hardware?select=*&type=eq."+hardwareType, "GET", "")
 }
 
 func (c *Client) GetVolume() (string, error) {
@@ -61,7 +61,7 @@ func (c *Client) GetPerf(id string) (string, error) {
 	var body = &RequestBody{
 		Entity:   "performance_metrics_by_appliance",
 		EntityID: id,
-		Interval: "One_Hour",
+		Interval: "Five_Mins",
 	}
 	entityBody, err := json.Marshal(body)
 	if err != nil {
@@ -87,7 +87,7 @@ func (c *Client) GetMetricVg(id string) (string, error) {
 	var body = &RequestBody{
 		Entity:   "performance_metrics_by_vg",
 		EntityID: id,
-		Interval: "One_Hour",
+		Interval: "Five_Mins",
 	}
 	entityBody, err := json.Marshal(body)
 	if err != nil {
@@ -100,7 +100,7 @@ func (c *Client) GetMetricVolume(id string) (string, error) {
 	var body = &RequestBody{
 		Entity:   "performance_metrics_by_volume",
 		EntityID: id,
-		Interval: "One_Hour",
+		Interval: "Five_Mins",
 	}
 	entityBody, err := json.Marshal(body)
 	if err != nil {
@@ -113,7 +113,7 @@ func (c *Client) GetMetricFcPort(id string) (string, error) {
 	var body = &RequestBody{
 		Entity:   "performance_metrics_by_fe_fc_port",
 		EntityID: id,
-		Interval: "One_Hour",
+		Interval: "Five_Mins",
 	}
 	entityBody, err := json.Marshal(body)
 	if err != nil {
@@ -126,7 +126,7 @@ func (c *Client) GetMetricEthPort(id string) (string, error) {
 	var body = &RequestBody{
 		Entity:   "performance_metrics_by_fe_eth_port",
 		EntityID: id,
-		Interval: "One_Hour",
+		Interval: "Five_Mins",
 	}
 	entityBody, err := json.Marshal(body)
 	if err != nil {
@@ -139,7 +139,7 @@ func (c *Client) GetMetricAppliance(id string) (string, error) {
 	var body = &RequestBody{
 		Entity:   "performance_metrics_by_appliance",
 		EntityID: id,
-		Interval: "One_Hour",
+		Interval: "Five_Mins",
 	}
 	entityBody, err := json.Marshal(body)
 	if err != nil {
@@ -152,7 +152,7 @@ func (c *Client) GetWearMetricByDrive(id string) (string, error) {
 	var body = &RequestBody{
 		Entity:   "wear_metrics_by_drive",
 		EntityID: id,
-		Interval: "One_Hour",
+		Interval: "Five_Mins",
 	}
 	entityBody, err := json.Marshal(body)
 	if err != nil {
@@ -166,7 +166,7 @@ func (c *Client) GetApplianceId() (string, error) {
 }
 
 func (c *Client) GetVolumeGroupId() (string, error) {
-	return c.getData("volume_group?select=id,name", "GET", "")
+	return c.getData("volume_group_list_cma_view?select=id,name,appliance_ids", "GET", "")
 }
 
 func (c *Client) GetVolumeId() (string, error) {
@@ -188,36 +188,36 @@ func (c *Client) GetDrivesId() (string, error) {
 	return c.getData("hardware?select=id,name", "GET", "")
 }
 
-func (c *Client) Init(logger log.Logger) {
+func (c *Client) InitModuleID(logger log.Logger) {
 	ModuleIDMap := make(map[string]string)
 	ApplianceId, err := c.GetApplianceId()
 	if err != nil {
-		level.Error(logger).Log("msg", "GetApplianceId error", "err", err, "ip", c.IP)
+		level.Error(logger).Log("msg", "Init appliance id list error", "err", err, "ip", c.IP)
 	}
 	ModuleIDMap["appliance"] = ApplianceId
 	VolumeId, err := c.GetVolumeId()
 	if err != nil {
-		level.Error(logger).Log("msg", "GetVolumeId error", "err", err, "ip", c.IP)
+		level.Error(logger).Log("msg", "Init volume id list error", "err", err, "ip", c.IP)
 	}
 	ModuleIDMap["volume"] = VolumeId
 	VolumeGroupId, err := c.GetVolumeGroupId()
 	if err != nil {
-		level.Error(logger).Log("msg", "GetVolumeGroupId error", "err", err, "ip", c.IP)
+		level.Error(logger).Log("msg", "Init volume group id list error", "err", err, "ip", c.IP)
 	}
 	ModuleIDMap["volumegroup"] = VolumeGroupId
 	EthPortId, err := c.GetEthPortId()
 	if err != nil {
-		level.Error(logger).Log("msg", "GetEthPortId error", "err", err, "ip", c.IP)
+		level.Error(logger).Log("msg", "Init eth port id list error", "err", err, "ip", c.IP)
 	}
 	ModuleIDMap["ethport"] = EthPortId
 	FcPortId, err := c.GetFcPortId()
 	if err != nil {
-		level.Error(logger).Log("msg", "GetFcPortId error", "err", err, "ip", c.IP)
+		level.Error(logger).Log("msg", "Init fc port id list error", "err", err, "ip", c.IP)
 	}
 	ModuleIDMap["fcport"] = FcPortId
 	DrivesId, err := c.GetDrivesId()
 	if err != nil {
-		level.Error(logger).Log("msg", "GetDrivesId error", "err", err, "ip", c.IP)
+		level.Error(logger).Log("msg", "Init drives id list error", "err", err, "ip", c.IP)
 	}
 	ModuleIDMap["drive"] = DrivesId
 	PowerstoreModuleID[c.IP] = ModuleIDMap
