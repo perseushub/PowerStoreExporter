@@ -35,9 +35,10 @@ func (c *applianceCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	for _, appliance := range gjson.Parse(applianceData).Array() {
 		tag := appliance.Get("service_tag")
+		applianceID := appliance.Get("id").String()
 		metricDesc := c.metrics["tag"]
 		if tag.Exists() && tag.Type != gjson.Null {
-			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, 0, tag.String())
+			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, 0, tag.String(), applianceID)
 		}
 	}
 }
@@ -53,9 +54,7 @@ func getApplianceMetrics(ip string) map[string]*prometheus.Desc {
 	res["tag"] = prometheus.NewDesc(
 		"powerstore_appliance",
 		getApplianceDescByType("service_tag"),
-		[]string{
-			"service_tag",
-		},
+		[]string{"service_tag", "appliance_id"},
 		prometheus.Labels{"IP": ip})
 
 	return res

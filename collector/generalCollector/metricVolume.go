@@ -12,24 +12,24 @@ var metricVolumeCollectorMetric = []string{
 	"avg_read_latency",
 	"avg_latency",
 	"avg_write_latency",
-	"read_iops",
-	"read_bandwidth",
-	"total_iops",
-	"total_bandwidth",
-	"write_iops",
-	"write_bandwidth",
+	"avg_read_iops",
+	"avg_read_bandwidth",
+	"avg_total_iops",
+	"avg_total_bandwidth",
+	"avg_write_iops",
+	"avg_write_bandwidth",
 }
 
 var metricMetricVolumeDescMap = map[string]string{
-	"avg_read_latency":  "avg latency time of read,unit is ms",
-	"avg_latency":       "avg latency time,unit is ms",
-	"avg_write_latency": "avg latency time of write,unit is ms",
-	"read_iops":         "iops of read,unit is iops",
-	"read_bandwidth":    "bandwidth of read,unit is bps",
-	"total_iops":        "total iops,unit is iops",
-	"total_bandwidth":   "total bandwidth,unit is bps",
-	"write_iops":        "iops of write,unit is iops",
-	"write_bandwidth":   "bandwidth of write,unit is bps",
+	"avg_read_latency":    "avg latency time of read,unit is ms",
+	"avg_latency":         "avg latency time,unit is ms",
+	"avg_write_latency":   "avg latency time of write,unit is ms",
+	"avg_read_iops":       "iops of read,unit is iops",
+	"avg_read_bandwidth":  "bandwidth of read,unit is bps",
+	"avg_total_iops":      "total iops,unit is iops",
+	"avg_total_bandwidth": "total bandwidth,unit is bps",
+	"avg_write_iops":      "iops of write,unit is iops",
+	"avg_write_bandwidth": "bandwidth of write,unit is bps",
 }
 
 type metricVolumeCollector struct {
@@ -61,12 +61,13 @@ func (c *metricVolumeCollector) Collect(ch chan<- prometheus.Metric) {
 		if len(volumeDataArray) == 0 {
 			continue
 		}
-		volData := volumeDataArray[len(volumeDataArray)-1]
+		volumeData := volumeDataArray[len(volumeDataArray)-1]
+		applianceID := volumeData.Get("appliance_id").String()
 		for _, metricName := range metricVolumeCollectorMetric {
-			metricValue := volData.Get(metricName)
-			metricDesc := c.metrics[metricName]
+			metricValue := volumeData.Get(metricName)
+			metricDesc := c.metrics["volume"+"_"+metricName]
 			if metricValue.Exists() && metricValue.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name, applianceID)
 			}
 		}
 	}
@@ -80,13 +81,11 @@ func (c *metricVolumeCollector) Describe(ch chan<- *prometheus.Desc) {
 
 func getMetricVolumeMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
-	for _, metricName := range metricVgCollectorMetric {
-		res[metricName] = prometheus.NewDesc(
+	for _, metricName := range metricVolumeCollectorMetric {
+		res["volume"+"_"+metricName] = prometheus.NewDesc(
 			"powerstore_metricVolume_"+metricName,
 			getMetricVolumeDescByType(metricName),
-			[]string{
-				"volume_id",
-			},
+			[]string{"volume_id", "appliance_id"},
 			prometheus.Labels{"IP": ip})
 	}
 	return res

@@ -73,12 +73,7 @@ func getClusterMetrics(ip string) map[string]*prometheus.Desc {
 	res["cluster"] = prometheus.NewDesc(
 		"powerstore_cluster",
 		getClusterDescByType("cluster"),
-		[]string{
-			"master_appliance_id",
-			"global_id",
-			"management_address",
-			"name",
-		},
+		[]string{"master_appliance_id", "global_id", "management_address", "name"},
 		prometheus.Labels{"IP": ip})
 	return res
 }

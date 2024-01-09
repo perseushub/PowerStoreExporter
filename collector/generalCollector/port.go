@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-var portName = []string{
+var portTypes = []string{
 	"eth_port",
 	"fc_port",
 }
@@ -46,18 +46,18 @@ func NewPortCollector(api *client.Client, logger log.Logger) *portCollector {
 }
 
 func (c *portCollector) Collect(ch chan<- prometheus.Metric) {
-	for _, port := range portName {
-		portData, err := c.client.GetPort(port)
+	for _, portType := range portTypes {
+		portTypeData, err := c.client.GetPort(portType)
 		if err != nil {
-			level.Warn(c.logger).Log("msg", "get "+port+" data error", "err", err)
+			level.Warn(c.logger).Log("msg", "get "+portType+" data error", "err", err)
 			return
 		}
-		for _, data := range gjson.Parse(portData).Array() {
+		for _, data := range gjson.Parse(portTypeData).Array() {
 			name := data.Get("name").String()
 			id := data.Get("appliance_id").String()
 			for _, metricName := range portCollectorMetrics {
 				metricValue := getPortFloatDate(metricName, data.Get(metricName))
-				metricDesc := c.metrics[port+metricName]
+				metricDesc := c.metrics[portType+metricName]
 				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue, id, name)
 			}
 		}
@@ -92,15 +92,12 @@ func getPortFloatDate(key string, value gjson.Result) float64 {
 
 func getPortMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
-	for _, port := range portName {
+	for _, portType := range portTypes {
 		for _, metricName := range portCollectorMetrics {
-			res[port+metricName] = prometheus.NewDesc(
-				"powerstore_port_"+port+"_"+metricName,
+			res[portType+metricName] = prometheus.NewDesc(
+				"powerstore_"+portType+"_"+metricName,
 				getPortDescByType(metricName),
-				[]string{
-					"appliance_id",
-					port + "_id",
-				},
+				[]string{"appliance_id", portType + "_id"},
 				prometheus.Labels{"IP": ip})
 		}
 	}

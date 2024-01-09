@@ -10,32 +10,26 @@ import (
 
 var metricVgCollectorMetric = []string{
 	"avg_read_latency",
-	"avg_read_size",
 	"avg_latency",
 	"avg_write_latency",
-	"avg_write_size",
-	"read_iops",
-	"read_bandwidth",
-	"total_iops",
-	"total_bandwidth",
-	"write_iops",
-	"write_bandwidth",
-	"avg_io_size",
+	"avg_read_iops",
+	"avg_read_bandwidth",
+	"avg_total_iops",
+	"avg_total_bandwidth",
+	"avg_write_iops",
+	"avg_write_bandwidth",
 }
 
 var metricMetricVgDescMap = map[string]string{
-	"avg_read_latency":  "avg latency time of read,unit is ms",
-	"avg_read_size":     "avg size of read,unit is B",
-	"avg_latency":       "avg latency time,unit is ms",
-	"avg_write_latency": "avg latency time of write,unit is ms",
-	"avg_write_size":    "avg size of write,unit is B",
-	"read_iops":         "iops of read,unit is iops",
-	"read_bandwidth":    "bandwidth of read,unit is bps",
-	"total_iops":        "total iops,unit is iops",
-	"total_bandwidth":   "total bandwidth,unit is bps",
-	"write_iops":        "iops of write,unit is iops",
-	"write_bandwidth":   "bandwidth of write,unit is bps",
-	"avg_io_size":       "avg size of IO",
+	"avg_read_latency":    "avg latency time of read,unit is ms",
+	"avg_latency":         "avg latency time,unit is ms",
+	"avg_write_latency":   "avg latency time of write,unit is ms",
+	"avg_read_iops":       "iops of read,unit is iops",
+	"avg_read_bandwidth":  "bandwidth of read,unit is bps",
+	"avg_total_iops":      "total iops,unit is iops",
+	"avg_total_bandwidth": "total bandwidth,unit is bps",
+	"avg_write_iops":      "iops of write,unit is iops",
+	"avg_write_bandwidth": "bandwidth of write,unit is bps",
 }
 
 type metricVgCollector struct {
@@ -58,6 +52,7 @@ func (c *metricVgCollector) Collect(ch chan<- prometheus.Metric) {
 	for _, vgId := range gjson.Parse(vgArray["volumegroup"]).Array() {
 		id := vgId.Get("id").String()
 		name := vgId.Get("name").String()
+		applianceIDs := vgId.Get("appliance_ids").Array()
 		metricVgData, err := c.client.GetMetricVg(id)
 		if err != nil {
 			level.Warn(c.logger).Log("msg", "get volume group performance data error", "err", err)
@@ -68,11 +63,13 @@ func (c *metricVgCollector) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 		vgData := vgDataArray[len(vgDataArray)-1]
-		for _, metricName := range metricVgCollectorMetric {
-			metricValue := vgData.Get(metricName)
-			metricDesc := c.metrics[metricName]
-			if metricValue.Exists() && metricValue.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
+		for _, applianceID := range applianceIDs {
+			for _, metricName := range metricVgCollectorMetric {
+				metricValue := vgData.Get(metricName)
+				metricDesc := c.metrics["vg"+"_"+metricName]
+				if metricValue.Exists() && metricValue.Type != gjson.Null {
+					ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name, applianceID.String())
+				}
 			}
 		}
 	}
@@ -87,12 +84,10 @@ func (c *metricVgCollector) Describe(ch chan<- *prometheus.Desc) {
 func getMetricVgfMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
 	for _, metricName := range metricVgCollectorMetric {
-		res[metricName] = prometheus.NewDesc(
+		res["vg"+"_"+metricName] = prometheus.NewDesc(
 			"powerstore_metricVg_"+metricName,
 			getMetricVgDescByType(metricName),
-			[]string{
-				"volume_group_id",
-			},
+			[]string{"volume_group_id", "appliance_id"},
 			prometheus.Labels{"IP": ip})
 	}
 	return res

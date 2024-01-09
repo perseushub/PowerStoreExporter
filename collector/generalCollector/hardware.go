@@ -16,7 +16,7 @@ var hardwareCollectorType = []string{
 }
 
 var metricHardwareDescMap = map[string]string{
-	"size":            "size,unit is B",
+	"size":            "disk size,unit is B",
 	"lifecycle_state": "drives status,Healthy is 1",
 }
 
@@ -52,7 +52,7 @@ func (c *hardwareCollector) Collect(ch chan<- prometheus.Metric) {
 		state := node.Get("lifecycle_state").String()
 		metricDesc := c.metrics["node"+id]
 		if node.Exists() && node.Type != gjson.Null {
-			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, 0, nodeName, sn, state)
+			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, 0, nodeName, sn, state, id)
 		}
 	}
 
@@ -62,17 +62,18 @@ func (c *hardwareCollector) Collect(ch chan<- prometheus.Metric) {
 			level.Warn(c.logger).Log("msg", "get hardware data error", "err", err)
 		}
 		for _, hardware := range gjson.Parse(hardwareData).Array() {
+			id := hardware.Get("appliance_id").String()
 			name := hardware.Get("name").String()
 			state := hardware.Get("lifecycle_state")
 			stateValue := getHardwareFloatDate("lifecycle_state", state)
 			metricDesc := c.metrics[types+"state"]
 			if state.Exists() && state.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, stateValue, name)
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, stateValue, name, id)
 			}
 			size := hardware.Get("extra_details").Get("size")
 			metricDesc = c.metrics["size"]
 			if size.Exists() && size.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, size.Float(), name, hardware.Get("extra_details").Get("drive_type").String())
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, size.Float(), name, id, hardware.Get("extra_details").Get("drive_type").String())
 			}
 		}
 	}
@@ -102,32 +103,22 @@ func getHardwareMetrics(ip string) map[string]*prometheus.Desc {
 	res["size"] = prometheus.NewDesc(
 		"powerstore_hardware_drive_size",
 		getHardwareDescByType("size"),
-		[]string{
-			"name",
-			"drive_type",
-		},
+		[]string{"name", "appliance_id", "drive_type"},
 		prometheus.Labels{"IP": ip})
 
 	for _, types := range hardwareCollectorType {
 		res[types+"state"] = prometheus.NewDesc(
 			"powerstore_hardware_"+types+"_state",
-			getHardwareDescByType("state"),
-			[]string{
-				"name",
-			},
+			getHardwareDescByType("lifecycle_state"),
+			[]string{"name", "appliance_id"},
 			prometheus.Labels{"IP": ip})
 	}
 
 	for _, id := range gjson.Parse(client.PowerstoreModuleID[ip]["appliance"]).Array() {
-		value := id.Get("id").String()
-		res["node"+value] = prometheus.NewDesc(
+		res["node"+id.Get("id").String()] = prometheus.NewDesc(
 			"powerstore_hardware_node_state",
-			getHardwareDescByType("state"),
-			[]string{
-				"name",
-				"serial_number",
-				"state",
-			},
+			getHardwareDescByType("lifecycle_state"),
+			[]string{"name", "serial_number", "state", "appliance_id"},
 			prometheus.Labels{"IP": ip})
 	}
 

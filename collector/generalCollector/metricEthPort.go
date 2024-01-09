@@ -9,13 +9,13 @@ import (
 )
 
 var metricEthPortCollectorMetric = []string{
-	"bytes_rx_ps",
-	"bytes_tx_ps",
-	"pkt_rx_crc_error_ps",
-	"pkt_rx_no_buffer_error_ps",
-	"pkt_rx_ps",
-	"pkt_tx_error_ps",
-	"pkt_tx_ps",
+	"avg_bytes_rx_ps",
+	"avg_bytes_tx_ps",
+	"avg_pkt_rx_crc_error_ps",
+	"avg_pkt_rx_no_buffer_error_ps",
+	"avg_pkt_rx_ps",
+	"avg_pkt_tx_error_ps",
+	"avg_pkt_tx_ps",
 }
 
 var metricMetricEthPortDescMap = map[string]string{
@@ -58,11 +58,12 @@ func (c *metricEthPortCollector) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 		ethPortData := ethPortDataArray[len(ethPortDataArray)-1]
+		applianceID := ethPortData.Get("appliance_id").String()
 		for _, metricName := range metricEthPortCollectorMetric {
 			metricValue := ethPortData.Get(metricName)
-			metricDesc := c.metrics[metricName]
+			metricDesc := c.metrics["ethport"+"_"+metricName]
 			if metricValue.Exists() && metricValue.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name, applianceID)
 			}
 		}
 	}
@@ -77,12 +78,10 @@ func (c *metricEthPortCollector) Describe(ch chan<- *prometheus.Desc) {
 func getMetricEthPortfMetrics(ip string) map[string]*prometheus.Desc {
 	res := map[string]*prometheus.Desc{}
 	for _, metricName := range metricEthPortCollectorMetric {
-		res[metricName] = prometheus.NewDesc(
+		res["ethport"+"_"+metricName] = prometheus.NewDesc(
 			"powerstore_metricEthPort_"+metricName,
 			getMetricEthPortDescByType(metricName),
-			[]string{
-				"eth_port_id",
-			},
+			[]string{"eth_port_id", "appliance_id"},
 			prometheus.Labels{"IP": ip})
 	}
 	return res

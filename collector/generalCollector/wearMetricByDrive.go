@@ -38,10 +38,11 @@ func (c *metricWearMetricCollector) Collect(ch chan<- prometheus.Metric) {
 			continue
 		}
 		wearData := metricWearArray[len(metricWearArray)-1]
+		applianceID := wearData.Get("appliance_id").String()
 		metricsValue := wearData.Get("percent_endurance_remaining")
 		metricDesc := c.metrics["wear"]
 		if metricsValue.Exists() && metricsValue.Type != gjson.Null {
-			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricsValue.Float(), name)
+			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricsValue.Float(), name, applianceID)
 		}
 	}
 
@@ -59,9 +60,7 @@ func getWearMetrics(ip string) map[string]*prometheus.Desc {
 	res["wear"] = prometheus.NewDesc(
 		"powerstore_wear_metrics_by_drive",
 		"this is the percent of endurance remaining about drives",
-		[]string{
-			"name",
-		},
+		[]string{"name", "appliance_id"},
 		prometheus.Labels{"IP": ip})
 	return res
 }

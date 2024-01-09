@@ -47,10 +47,11 @@ func (c *volumeCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	for _, volume := range gjson.Parse(volumeData).Array() {
 		name := volume.Get("name").String()
+		id := volume.Get("appliance_id").String()
 		for _, metricName := range volumeCollectorMetrics {
 			metricValue := getVolumeFloatDate(metricName, volume.Get(metricName))
 			metricDesc := c.metrics[metricName]
-			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue, name)
+			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue, name, id)
 		}
 	}
 }
@@ -79,7 +80,7 @@ func getVolumeMetrics(ip string) map[string]*prometheus.Desc {
 		res[metricName] = prometheus.NewDesc(
 			"powerstore_volume_"+metricName,
 			getVolumeDescByType(metricName),
-			[]string{"name"},
+			[]string{"name", "appliance_id"},
 			prometheus.Labels{"IP": ip})
 	}
 

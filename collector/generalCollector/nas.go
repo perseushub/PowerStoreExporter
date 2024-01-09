@@ -38,12 +38,13 @@ func (c *nasCollector) Collect(ch chan<- prometheus.Metric) {
 		return
 	}
 	for _, nas := range gjson.Parse(nasData).Array() {
+		id := nas.Get("appliance_id").String()
 		name := nas.Get("name").String()
 		state := nas.Get("operational_status")
 		value := getNasFloatData("operational_status", state)
 		metricDesc := c.metrics["operational_status"]
 		if state.Exists() && state.Type != gjson.Null {
-			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, value, name)
+			ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, value, name, id)
 		}
 	}
 }
@@ -71,9 +72,7 @@ func getNasMetrics(ip string) map[string]*prometheus.Desc {
 	res["operational_status"] = prometheus.NewDesc(
 		"powerstore_nas_server_operational_status",
 		getNasDescByType("operational_status"),
-		[]string{
-			"name",
-		},
+		[]string{"name", "appliance_id"},
 		prometheus.Labels{"IP": ip})
 	return res
 }

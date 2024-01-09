@@ -104,9 +104,7 @@ func getCapacityMetrics(ip string) map[string]*prometheus.Desc {
 		res[metricName] = prometheus.NewDesc(
 			"powerstore_cap_"+metricName,
 			getCapacityDescByType(metricName),
-			[]string{
-				"appliance_id",
-			},
+			[]string{"appliance_id"},
 			prometheus.Labels{"IP": ip})
 	}
 	return res

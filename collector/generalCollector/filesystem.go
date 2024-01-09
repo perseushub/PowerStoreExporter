@@ -42,11 +42,12 @@ func (c *fileSystemCollector) Collect(ch chan<- prometheus.Metric) {
 	}
 	for _, file := range gjson.Parse(fileData).Array() {
 		name := file.Get("name").String()
+		id := file.Get("appliance_id").String()
 		for _, metricName := range metricFileSystemCollector {
 			metricValue := file.Get(metricName)
 			metricDesc := c.metrics[metricName]
 			if metricValue.Exists() && metricValue.Type != gjson.Null {
-				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name)
+				ch <- prometheus.MustNewConstMetric(metricDesc, prometheus.GaugeValue, metricValue.Float(), name, id)
 			}
 		}
 	}
@@ -64,9 +65,7 @@ func getFileSystemMetrics(ip string) map[string]*prometheus.Desc {
 		res[metricName] = prometheus.NewDesc(
 			"powerstore_filesystem_"+metricName,
 			getFileSystemDescByType(metricName),
-			[]string{
-				"name",
-			},
+			[]string{"name", "appliance_id"},
 			prometheus.Labels{"IP": ip})
 	}
 	return res
