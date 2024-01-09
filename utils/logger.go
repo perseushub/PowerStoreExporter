@@ -12,9 +12,6 @@ import (
 
 func GetLogger(loglevel, logPath, logfmt string) log.Logger {
 	var out *os.File
-	if loglevel == "" {
-		loglevel = "info"
-	}
 	if logPath == "" {
 		logPath = "/var/log/Exporter/Exporter.out.log"
 	}
