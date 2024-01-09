@@ -12,13 +12,13 @@ When you download this project build under golang environment.
 
 ```
 cd PowerStoreExporter
-go build
+go build -o PowerStoreExporter
 ```
 #### Run
-Change  Expoter config file in ./config.yml, you can change this exporter default port 9010  to other port in your local system.
+Change Expoter config file in ./config.yml, you can change this exporter default port 9010  to other port in your local system.
 Firstly we strong suggest you to crate operator role user account in PowerStore, then update storeageList section for IP address and PowerStore username/password.
 ```
-./PowerStoreExporter
+./PowerStoreExporter -c config.yml
 ```
 
 
