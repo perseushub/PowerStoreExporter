@@ -24,7 +24,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 5,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -157,7 +157,7 @@
         ]
       },
       "gridPos": {
-        "h": 4,
+        "h": 5,
         "w": 24,
         "x": 0,
         "y": 0
@@ -186,7 +186,7 @@
             "type": "prometheus",
             "uid": "PIVogTMIz"
           },
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
           "expr": "powerstore_cluster{IP=\"$IP\"}",
           "format": "table",
@@ -203,7 +203,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_appliance{IP=\"$IP\"}",
+          "expr": "last_over_time(powerstore_appliance{IP=\"$IP\"}[1h])",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -218,7 +218,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_perf_io_workload_cpu_utilization{IP=\"$IP\"}*100",
+          "expr": "last_over_time(powerstore_perf_io_workload_cpu_utilization{IP=\"$IP\"}[1h])*100",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -233,7 +233,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_cap_last_efficiency_ratio{IP=\"$IP\"}",
+          "expr": "last_over_time(powerstore_cap_last_efficiency_ratio{IP=\"$IP\"}[1h])",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -248,7 +248,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_cap_last_logical_provisioned{IP=\"$IP\"}",
+          "expr": "last_over_time(powerstore_cap_last_logical_provisioned{IP=\"$IP\"}[1h])",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -263,7 +263,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_cap_last_physical_used{IP=\"$IP\"}",
+          "expr": "last_over_time(powerstore_cap_last_physical_used{IP=\"$IP\"}[1h])",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -278,7 +278,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_cap_last_physical_total{IP=\"$IP\"}",
+          "expr": "last_over_time(powerstore_cap_last_physical_total{IP=\"$IP\"}[1h])",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -293,7 +293,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_cap_last_logical_used{IP=\"$IP\"}",
+          "expr": "last_over_time(powerstore_cap_last_logical_used{IP=\"$IP\"}[1h])",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -336,18 +336,18 @@
             "indexByName": {
               "IP": 0,
               "Value #A": 5,
-              "Value #C": 6,
-              "Value #D": 11,
-              "Value #E": 7,
-              "Value #F": 8,
-              "Value #G": 9,
-              "Value #H": 10,
+              "Value #D": 10,
+              "Value #E": 8,
+              "Value #F": 6,
+              "Value #G": 7,
+              "Value #H": 9,
               "global_id": 2,
               "master_appliance_id": 1,
               "name": 4,
               "service_tag": 3
             },
             "renameByName": {
+              "IP": "Master IP",
               "Time": "",
               "Value": "Cluster_state",
               "Value #A": "Cluster State",
@@ -357,8 +357,8 @@
               "Value #F": "Physical Used Size",
               "Value #G": "Physical Size",
               "Value #H": "Logical Used Size",
-              "global_id": "Total ID",
-              "master_appliance_id": "ClusterID",
+              "global_id": "Global ID",
+              "master_appliance_id": "Appliance ID",
               "name": "ClusterName",
               "service_tag": "SN",
               "{IP=\"10.0.0.1\", __name__=\"powerstore_cluster\", global_id=\"abcdefghijklmn\", instance=\"10.0.0.1:9012\", job=\"powerstore_10.0.0.1__cluster\", management_address=\"10.0.01\", master_appliance_id=\"A\", name=\"10.0.0.1\"}": "IP"
@@ -430,7 +430,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 4
+        "y": 5
       },
       "id": 24,
       "options": {
@@ -458,37 +458,9 @@
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_perf_avg_read_latency{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_perf_avg_write_latency{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "C"
         }
       ],
-      "title": "Powerstore latency",
+      "title": "Powerstore Appliance latency",
       "type": "timeseries"
     },
     {
@@ -553,7 +525,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 4
+        "y": 5
       },
       "id": 28,
       "options": {
@@ -576,42 +548,15 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_perf_total_iops{IP=\"$IP\"}",
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_perf_read_iops{IP=\"$IP\"}",
+          "expr": "powerstore_perf_avg_total_iops{IP=\"$IP\"}",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_perf_write_iops{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "C"
         }
       ],
-      "title": "Powerstore IOPS",
+      "title": "Powerstore Appliance IOPS",
       "type": "timeseries"
     },
     {
@@ -676,7 +621,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 4
+        "y": 5
       },
       "id": 26,
       "options": {
@@ -699,42 +644,15 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_perf_total_bandwidth{IP=\"$IP\"}",
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_perf_write_bandwidth{IP=\"$IP\"}",
+          "expr": "powerstore_perf_avg_total_bandwidth{IP=\"$IP\"}",
           "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_perf_read_bandwidth{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "C"
         }
       ],
-      "title": "Powerstore Bandwidth",
+      "title": "Powerstore Appliance Bandwidth",
       "type": "timeseries"
     },
     {
@@ -742,7 +660,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 11
+        "y": 12
       },
       "id": 46,
       "title": "Port",
@@ -810,7 +728,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 12
+        "y": 13
       },
       "id": 10,
       "options": {
@@ -821,7 +739,7 @@
           "showLegend": false
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         }
       },
@@ -833,42 +751,14 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_avg_latency{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_avg_latency{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_metricFcPort_avg_read_latency{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_metricFcPort_avg_write_latency{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "C"
         }
       ],
-      "title": "FcPort latency",
+      "title": "[$Appliance] FcPort latency",
       "type": "timeseries"
     },
     {
@@ -933,7 +823,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 12
+        "y": 13
       },
       "id": 12,
       "options": {
@@ -944,7 +834,7 @@
           "showLegend": false
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         }
       },
@@ -956,42 +846,14 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_read_iops{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_avg_read_iops{IP=\"$IP\",appliance_id=\"$Appliance\"} + powerstore_metricFcPort_avg_write_iops{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_metricFcPort_write_iops{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_metricFcPort_total_iops{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "C"
         }
       ],
-      "title": "FcPort IOPS",
+      "title": "[$Appliance] FcPort IOPS",
       "type": "timeseries"
     },
     {
@@ -1056,7 +918,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 12
+        "y": 13
       },
       "id": 14,
       "options": {
@@ -1067,7 +929,7 @@
           "showLegend": false
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         }
       },
@@ -1079,42 +941,14 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_read_bandwidth{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_avg_read_bandwidth{IP=\"$IP\",appliance_id=\"$Appliance\"}+powerstore_metricFcPort_avg_write_bandwidth{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_metricFcPort_write_bandwidth{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "B"
-        },
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PIVogTMIz"
-          },
-          "editorMode": "code",
-          "exemplar": false,
-          "expr": "powerstore_metricFcPort_total_bandwidth{IP=\"$IP\"}",
-          "hide": false,
-          "instant": false,
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "C"
         }
       ],
-      "title": "FcPort Bandwidth",
+      "title": "[$Appliance] FcPort Bandwidth",
       "type": "timeseries"
     },
     {
@@ -1182,7 +1016,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 20
       },
       "id": 34,
       "options": {
@@ -1205,7 +1039,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_prim_seq_prot_err_count_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_avg_prim_seq_prot_err_count_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -1219,7 +1053,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_loss_of_sync_count_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_avg_loss_of_sync_count_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1234,7 +1068,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_loss_of_signal_count_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_avg_loss_of_signal_count_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1249,7 +1083,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_link_failure_count_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_avg_link_failure_count_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1264,7 +1098,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_invalid_tx_word_count_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_avg_invalid_tx_word_count_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1279,7 +1113,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_invalid_crc_count_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_invalid_crc_count_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1294,7 +1128,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricFcPort_dumped_frames_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricFcPort_avg_dumped_frames_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1309,7 +1143,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_port_fc_port_is_link_up{IP=\"$IP\"}",
+          "expr": "powerstore_fc_port_is_link_up{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1318,7 +1152,7 @@
           "refId": "H"
         }
       ],
-      "title": "FCPort Information",
+      "title": "[$Appliance] FCPort Information",
       "transformations": [
         {
           "id": "filterFieldsByName",
@@ -1346,7 +1180,16 @@
           "id": "organize",
           "options": {
             "excludeByName": {},
-            "indexByName": {},
+            "indexByName": {
+              "Value #A": 2,
+              "Value #B": 3,
+              "Value #C": 4,
+              "Value #D": 5,
+              "Value #E": 6,
+              "Value #G": 7,
+              "Value #H": 1,
+              "fc_port_id": 0
+            },
             "renameByName": {
               "Value": "loss_of_signal_count_ps",
               "Value #A": "prim_seq_prot_err_count_ps",
@@ -1429,7 +1272,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 27
+        "y": 28
       },
       "id": 22,
       "options": {
@@ -1452,7 +1295,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricEthPort_bytes_rx_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricEthPort_avg_bytes_rx_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -1466,7 +1309,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricEthPort_bytes_tx_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricEthPort_avg_bytes_tx_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1481,7 +1324,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricEthPort_pkt_rx_crc_error_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricEthPort_avg_pkt_rx_crc_error_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1496,7 +1339,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricEthPort_pkt_rx_no_buffer_error_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricEthPort_avg_pkt_rx_no_buffer_error_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1511,7 +1354,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricEthPort_pkt_rx_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricEthPort_avg_pkt_rx_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1526,7 +1369,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricEthPort_pkt_tx_error_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricEthPort_pkt_tx_error_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1541,7 +1384,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricEthPort_pkt_tx_ps{IP=\"$IP\"}",
+          "expr": "powerstore_metricEthPort_pkt_tx_ps{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1556,7 +1399,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_port_eth_port_is_link_up{IP=\"$IP\"}",
+          "expr": "powerstore_eth_port_is_link_up{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -1565,7 +1408,7 @@
           "refId": "H"
         }
       ],
-      "title": "EthPort Information",
+      "title": "[$Appliance] EthPort Information",
       "transformations": [
         {
           "id": "filterFieldsByName",
@@ -1593,7 +1436,15 @@
           "id": "organize",
           "options": {
             "excludeByName": {},
-            "indexByName": {},
+            "indexByName": {
+              "Value #A": 2,
+              "Value #B": 3,
+              "Value #C": 4,
+              "Value #D": 5,
+              "Value #E": 6,
+              "Value #H": 1,
+              "eth_port_id": 0
+            },
             "renameByName": {
               "Value": "Volume Size",
               "Value #A": "bytes_rx_ps",
@@ -1616,7 +1467,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 37
       },
       "id": 44,
       "title": "Volume",
@@ -1680,7 +1531,7 @@
         "h": 7,
         "w": 8,
         "x": 0,
-        "y": 37
+        "y": 38
       },
       "id": 36,
       "options": {
@@ -1701,14 +1552,14 @@
             "type": "prometheus",
             "uid": "PIVogTMIz"
           },
-          "editorMode": "builder",
-          "expr": "powerstore_metricVolume_avg_latency{IP=\"$IP\"}",
+          "editorMode": "code",
+          "expr": "powerstore_metricVolume_avg_latency{IP=\"$IP\", appliance_id=\"$Appliance\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Volume Avg Latency",
+      "title": "[$Appliance] Volume Avg Latency",
       "type": "timeseries"
     },
     {
@@ -1773,7 +1624,7 @@
         "h": 7,
         "w": 8,
         "x": 8,
-        "y": 37
+        "y": 38
       },
       "id": 40,
       "options": {
@@ -1784,7 +1635,7 @@
           "showLegend": false
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         }
       },
@@ -1796,14 +1647,15 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_metricVolume_total_iops{IP=\"$IP\"}",
+          "expr": "powerstore_metricVolume_avg_read_iops{IP=\"$IP\",appliance_id=\"$Appliance\"} + powerstore_metricVolume_avg_write_iops{IP=\"$IP\",appliance_id=\"$Appliance\"}",
+          "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "B"
         }
       ],
-      "title": "Volume Total IOPS",
+      "title": "[$Appliance] Volume Total IOPS",
       "type": "timeseries"
     },
     {
@@ -1864,7 +1716,7 @@
         "h": 7,
         "w": 8,
         "x": 16,
-        "y": 37
+        "y": 38
       },
       "id": 38,
       "options": {
@@ -1875,7 +1727,7 @@
           "showLegend": false
         },
         "tooltip": {
-          "mode": "single",
+          "mode": "multi",
           "sort": "none"
         }
       },
@@ -1886,13 +1738,14 @@
             "uid": "PIVogTMIz"
           },
           "editorMode": "code",
-          "expr": "powerstore_metricVolume_total_bandwidth{IP=\"$IP\"}",
+          "expr": "powerstore_metricVolume_avg_write_bandwidth{IP=\"$IP\",appliance_id=\"$Appliance\"} + powerstore_metricVolume_avg_read_bandwidth{IP=\"$IP\",appliance_id=\"$Appliance\"}",
+          "hide": false,
           "legendFormat": "__auto",
           "range": true,
-          "refId": "A"
+          "refId": "C"
         }
       ],
-      "title": "Volume Total Bandwidth",
+      "title": "[$Appliance]  Volume Total Bandwidth",
       "type": "timeseries"
     },
     {
@@ -1981,6 +1834,36 @@
                 "value": "bytes"
               }
             ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Volume Capacity Usage"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.displayMode",
+                "value": "gradient-gauge"
+              },
+              {
+                "id": "min",
+                "value": 0
+              },
+              {
+                "id": "max",
+                "value": 100
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "continuous-GrYlRd"
+                }
+              }
+            ]
           }
         ]
       },
@@ -1988,7 +1871,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 44
+        "y": 45
       },
       "id": 6,
       "options": {
@@ -2011,7 +1894,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_volume_size{IP=\"$IP\"}",
+          "expr": "powerstore_volume_size{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -2025,7 +1908,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_volume_state{IP=\"$IP\"}",
+          "expr": "powerstore_volume_state{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2040,13 +1923,28 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_volume_logical_used{IP=\"$IP\"}",
+          "expr": "powerstore_volume_logical_used{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
           "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PIVogTMIz"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "powerstore_volume_logical_used{IP=\"$IP\",appliance_id=\"$Appliance\"}/powerstore_volume_size{IP=\"$IP\",appliance_id=\"$Appliance\"} * 100",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "D"
         }
       ],
       "title": "Volume Information",
@@ -2059,7 +1957,8 @@
                 "name",
                 "Value #A",
                 "Value #B",
-                "Value #C"
+                "Value #C",
+                "Value #D"
               ]
             }
           }
@@ -2083,6 +1982,7 @@
               "Value #A": "Volume Capacity",
               "Value #B": "Volume State",
               "Value #C": "Volume Logical Used Size",
+              "Value #D": "Volume Capacity Usage",
               "name": "Volume Name"
             }
           }
@@ -2095,7 +1995,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 51
+        "y": 52
       },
       "id": 42,
       "title": "hardware",
@@ -2202,7 +2102,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 52
+        "y": 53
       },
       "id": 4,
       "options": {
@@ -2224,7 +2124,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_hardware_drive_drive_type{IP=\"$IP\"}",
+          "expr": "powerstore_hardware_drive_drive_type{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -2238,7 +2138,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_hardware_drive_fips_status{IP=\"$IP\"}",
+          "expr": "powerstore_hardware_drive_fips_status{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2253,7 +2153,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_hardware_drive_firmware_version{IP=\"$IP\"}",
+          "expr": "powerstore_hardware_drive_firmware_version{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": true,
           "instant": true,
@@ -2268,7 +2168,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_hardware_drive_size{IP=\"$IP\"}",
+          "expr": "powerstore_hardware_drive_size{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2283,7 +2183,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "powerstore_wear_metrics_by_drive{IP=\"$IP\"}",
+          "expr": "powerstore_wear_metrics_by_drive{IP=\"$IP\",appliance_id=\"$Appliance\"}",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -2292,7 +2192,7 @@
           "refId": "E"
         }
       ],
-      "title": "Drive Information",
+      "title": "[$Appliance] Drive Information",
       "transformations": [
         {
           "id": "filterFieldsByName",
@@ -2340,10 +2240,9 @@
     "list": [
       {
         "current": {
-          "isNone": true,
           "selected": false,
-          "text": "None",
-          "value": ""
+          "text": "192.168.7.60",
+          "value": "192.168.7.60"
         },
         "datasource": {
           "type": "prometheus",
@@ -2364,6 +2263,32 @@
         "skipUrlSync": false,
         "sort": 0,
         "type": "query"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": "A1",
+          "value": "A1"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "PIVogTMIz"
+        },
+        "definition": "label_values(powerstore_appliance{},appliance_id)",
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "Appliance",
+        "options": [],
+        "query": {
+          "query": "label_values(powerstore_appliance{},appliance_id)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 0,
+        "type": "query"
       }
     ]
   },
@@ -2373,8 +2298,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "powerstore exporter dashboard",
-  "uid": "vt4jLZnSk",
-  "version": 42,
+  "title": "powerstore exporter from prometheus dashboard",
+  "uid": "vt4jLZnSk2",
+  "version": 24,
   "weekStart": ""
 }
