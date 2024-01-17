@@ -310,15 +310,16 @@
             "include": {
               "names": [
                 "IP",
+                "global_id",
+                "master_appliance_id",
+                "name",
                 "service_tag",
                 "Value #D",
                 "Value #E",
                 "Value #F",
                 "Value #G",
                 "Value #H",
-                "master_appliance_id",
-                "name",
-                "global_id"
+                "Value #A"
               ]
             }
           }
@@ -333,15 +334,16 @@
             "excludeByName": {},
             "indexByName": {
               "IP": 1,
-              "Value #D": 9,
-              "Value #E": 7,
-              "Value #F": 5,
-              "Value #G": 6,
-              "Value #H": 8,
-              "global_id": 3,
-              "master_appliance_id": 2,
+              "Value #A": 2,
+              "Value #D": 10,
+              "Value #E": 8,
+              "Value #F": 6,
+              "Value #G": 7,
+              "Value #H": 9,
+              "global_id": 4,
+              "master_appliance_id": 3,
               "name": 0,
-              "service_tag": 4
+              "service_tag": 5
             },
             "renameByName": {
               "IP": "Master  IP",
@@ -970,8 +972,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1226,8 +1227,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -1519,8 +1519,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1608,8 +1607,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1704,8 +1702,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           },
@@ -1769,8 +1766,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2049,8 +2045,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2142,8 +2137,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2235,8 +2229,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2303,8 +2296,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -2506,8 +2498,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2711,8 +2702,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2827,8 +2817,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -2960,8 +2949,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -3093,8 +3081,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               }
             ]
           }
@@ -3275,6 +3262,6 @@
   "timezone": "",
   "title": "powerstore exporter from prometheus dashboard",
   "uid": "vt4jLZnSk2",
-  "version": 6,
+  "version": 7,
   "weekStart": ""
 }
