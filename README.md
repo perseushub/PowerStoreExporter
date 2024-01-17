@@ -5,7 +5,7 @@
 PowerStore Exporter for Both Prometheus and Zabbix.
 
 One PowerStore Exporter collect multiple PowerStore Devices with PowerStore's Restful API, provide multiple http targets; Support for CNCF Monitoring software Prometheus and Zabbix,they can use these targets, scrape PowerStore detail metrices.
-This Project test with PowerStore RestAPI version 1.0, 2.0, 3.5; Zabbix version 6.0LTS, Prometheus2.39.1, Grafana8.5.2.
+This Project test with PowerStore RestAPI version 1.0, 2.0, 3.5; Zabbix version 6.0LTS, Prometheus2.39.1, Grafana9.3.8.
 
 #### Download Compile
 When you download this project build under golang environment.
