@@ -75,8 +75,7 @@ func (c *Client) InitLogin() error {
 	defer response.Body.Close()
 	switch response.StatusCode {
 	case http.StatusOK, http.StatusCreated:
-		cok := response.Cookies()
-		c.token = cok[0].Value
+		c.token = response.Header.Get("Dell-Emc-Token")
 		return nil
 	default:
 		body, err := ioutil.ReadAll(response.Body)
@@ -94,9 +93,8 @@ func (c *Client) getResource(method, uri, body string) (string, error) {
 	request.SetBasicAuth(c.username, c.password)
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("Content-Type", "application/json")
-	if method == "POST" {
-		request.Header.Set("DELL-EMC-TOKEN", c.token)
-	}
+	request.Header.Set("DELL-EMC-TOKEN", c.token)
+
 	response, err := c.http.Do(request)
 	if err != nil {
 		level.Warn(c.logger).Log("msg", "Request URL error!")
