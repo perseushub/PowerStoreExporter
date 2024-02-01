@@ -6,7 +6,7 @@ import (
 	"errors"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"powerstore/utils"
@@ -21,6 +21,7 @@ type Client struct {
 	baseUrl  string
 	http     *http.Client
 	token    string
+	cookie   string
 	logger   log.Logger
 }
 
@@ -59,7 +60,7 @@ func NewClient(config utils.Storage, logger log.Logger) (*Client, error) {
 }
 
 func (c *Client) InitLogin() error {
-	reqUrl := c.baseUrl + "cluster?select=*"
+	reqUrl := c.baseUrl + "login_session"
 	request, err := http.NewRequest("GET", reqUrl, bytes.NewBuffer([]byte("")))
 	if err != nil {
 		return err
@@ -76,9 +77,15 @@ func (c *Client) InitLogin() error {
 	switch response.StatusCode {
 	case http.StatusOK, http.StatusCreated:
 		c.token = response.Header.Get("Dell-Emc-Token")
+		cookies := response.Cookies()
+		for _, cookie := range cookies {
+			if cookie.Name == "auth_cookie" {
+				c.cookie = cookie.Value
+			}
+		}
 		return nil
 	default:
-		body, err := ioutil.ReadAll(response.Body)
+		body, err := io.ReadAll(response.Body)
 		level.Warn(c.logger).Log("msg", "get token error", "err", err)
 		return errors.New("get token error: " + string(body))
 	}
@@ -90,10 +97,10 @@ func (c *Client) getResource(method, uri, body string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	request.SetBasicAuth(c.username, c.password)
 	request.Header.Set("Accept", "application/json")
 	request.Header.Set("Content-Type", "application/json")
 	request.Header.Set("DELL-EMC-TOKEN", c.token)
+	request.Header.Set("Cookie", "auth_cookie="+c.cookie)
 
 	response, err := c.http.Do(request)
 	if err != nil {
@@ -104,7 +111,7 @@ func (c *Client) getResource(method, uri, body string) (string, error) {
 	defer response.Body.Close()
 	switch response.StatusCode {
 	case http.StatusOK, http.StatusCreated, http.StatusPartialContent:
-		body, err := ioutil.ReadAll(response.Body)
+		body, err := io.ReadAll(response.Body)
 		if err != nil {
 			return "", errors.New("get resource error: " + string(body))
 		}
@@ -119,7 +126,7 @@ func (c *Client) getResource(method, uri, body string) (string, error) {
 			return c.getResource(method, uri, body)
 		}
 	default:
-		body, err := ioutil.ReadAll(response.Body)
+		body, err := io.ReadAll(response.Body)
 		if err != nil {
 			return "", errors.New("get resource error ReadAll err is not nil: " + string(body))
 		}
